@@ -9,6 +9,9 @@ from statemachine import StateMachine, State
 #     got_separator = State("Got separator")
 #     got_identifier = State("Got identifier")
 
+
+
+
 class SpaceBeforeAndAfterWordsMachine(StateMachine):
     got_alpha = State("Got alpha", initial=True)
     got_digit = State("Got digit")
@@ -32,12 +35,11 @@ class SpaceBeforeAndAfterWordsMachine(StateMachine):
         | got_separator.from_(got_alpha, got_digit, got_separator, got_first_operator, got_second_operator, cond = "is_separator", on = "make_space")#
     )
 
-    # def __init__(self, line):
-    #     self.line = line
-    #     self.index_line = 0
-
-    def is_alpha(self, symb):
-        return symb.isalpha()
+    def __init__(self):
+        self.ans = ""
+        super(SpaceBeforeAndAfterWordsMachine, self).__init__()
+    def is_alpha(self, char):
+        return char.isalpha()
     def is_digit(self, char):
         return char.isdigit()
     def is_dot(self, char):
@@ -51,14 +53,19 @@ class SpaceBeforeAndAfterWordsMachine(StateMachine):
     def is_space(self, char):
         return char == ' '
     def make_space(self):
-        print('тут пробел')
+        self.ans += " "
+
+    def after_symbols(self, char):
+        self.ans += char
+
+
 
 testmachine = SpaceBeforeAndAfterWordsMachine()
 
-for s in "if a>b then b7 = 10":
+for s in "for i in range(50):":
     testmachine.symbols(s)
     print(testmachine)
-
+print(testmachine.ans)
 
 
 

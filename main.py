@@ -20,6 +20,7 @@ class SpaceBeforeAndAfterWordsMachine(StateMachine):
     got_second_operator = State("Gor second operator")
     got_space = State("Got space")
     got_separator = State("Got separator")
+    got_enter = State("Got enter")
 
     symbols = (
         got_alpha.from_(got_alpha, got_digit, got_space, cond = "is_alpha")
@@ -33,15 +34,16 @@ class SpaceBeforeAndAfterWordsMachine(StateMachine):
         | got_space.from_(got_alpha, got_digit, got_separator, got_first_operator, got_second_operator,got_space, cond ="is_space")
         | got_separator.from_(got_space, cond = "is_separator")
         | got_separator.from_(got_alpha, got_digit, got_separator, got_first_operator, got_second_operator, cond = "is_separator", on = "make_space")#
+        | got_enter.from_(got_alpha, got_digit, got_separator, got_first_operator, got_second_operator, got_space, cond = "is_enter", on = "make_space")
     )
 
     def __init__(self):
         self.ans = ""
         super(SpaceBeforeAndAfterWordsMachine, self).__init__()
     def is_alpha(self, char):
-        return (char.isalpha() or char == "\n")
+        return (char.isalpha())
     def is_digit(self, char):
-        return (char.isdigit() or char == "\n")
+        return (char.isdigit())
     def is_dot(self, char):
         return char == '.'
     def is_operator(self, char):
@@ -52,6 +54,8 @@ class SpaceBeforeAndAfterWordsMachine(StateMachine):
         return char in separators
     def is_space(self, char):
         return char == ' '
+    def is_enter(self, char):
+        return char == '\n'
     def make_space(self):
         self.ans += " "
     def after_symbols(self, char):
@@ -72,4 +76,6 @@ with open('python_code.txt') as f:
         for char in line:
             space_machine.symbols(char)
         lines_with_spaces.append(space_machine.ans)
+    for i in range(len(lines_with_spaces)):
+        lines_with_spaces[i] = lines_with_spaces[i].split(' ')
     print(lines_with_spaces)

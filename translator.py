@@ -89,7 +89,6 @@ class Translator(StateMachine):
             if self.current_word not in string_dict:
                 string_dict[self.current_word] = len(string_dict)
             self.tokens_list.append('S' + str(string_dict[self.current_word]))
-            print(self.current_word)
         elif self.current_word != '':
             if self.current_word not in ident_dict:
                 ident_dict[self.current_word] = len(ident_dict)
@@ -101,7 +100,7 @@ class Translator(StateMachine):
 
 
 output_lists = []
-with open('test.txt','r') as file:
+with open('python_code.txt','r') as file:
     for line in file:
         t = Translator()
         for symbol in line:

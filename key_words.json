@@ -1,0 +1,15 @@
+{
+  "if": 0,
+  "or": 1,
+  "and": 2,
+  "for": 3,
+  "in": 4,
+  "then": 5,
+  "else": 6,
+  "while": 7,
+  "is": 8,
+  "elif": 9,
+  "def": 10,
+  "return":11,
+  "range":12
+}

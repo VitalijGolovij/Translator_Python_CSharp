@@ -1,15 +1,18 @@
 from statemachine import StateMachine, State
+import json
 
-key_words_dict = {'if': 0, 'or': 1, 'and': 2, 'for': 3, 'in': 4, 'then': 5, 'else': 6, 'while': 7, 'is': 8, 'elif': 9,
-                  'def': 10, 'return':11, 'range':12}
-operators_dict = {'<': 0, '>': 1, '<=': 2, '>=': 3, '+=': 4, '-=': 5, '*=': 6, '/=': 7, '=': 8, '==': 9, '+': 10,
-                  '-': 11, '*': 12, '/': 13}
-separators_dict = {'(': 0, ')': 1, '[': 2, ']': 3, '{': 4, '}': 5, '"': 6, ',': 7, ':': 8, "'": 9}
+json_file = open('key_words.json')
+key_words_dict = json.load(json_file)
+
+json_file = open('operators.json')
+operators_dict = json.load(json_file)
+
+json_file = open('separators.json')
+separators_dict = json.load(json_file)
 
 ident_dict = {}
 
 numbers_dict = {}
-
 
 class Translator(StateMachine):
     got_alpha = State("Got alpha", initial=True)
@@ -105,4 +108,8 @@ with open('tokens.txt','w') as file:
             file.write(value + " ")
         file.write('\n')
 
+with open('ident.json', 'w') as file:
+    json.dump(ident_dict, file, indent=4)
+with open('numbers.json', 'w') as file:
+    json.dump(numbers_dict, file, indent=4)
 

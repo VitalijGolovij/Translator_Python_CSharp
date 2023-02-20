@@ -14,6 +14,8 @@ ident_dict = {}
 
 numbers_dict = {}
 
+string_dict = {}
+
 def is_digit(line: str):
     if line == '': return False
     for char in line:
@@ -26,23 +28,30 @@ class Translator(StateMachine):
     got_digit = State("Got digit")
     got_dot = State("Got dot")
     got_first_operator = State("Got first operator")
-    got_second_operator = State("Gor second operator")
+    got_second_operator = State("Got second operator")
+    got_first_quot = State("Got first quotation ")
+    got_second_quot = State("Got second quotation ")
+    got_string = State("Got string")
     got_separator = State("Got separator")
 
     add_symbol = (
-            got_alpha.from_(got_alpha, cond="is_alpha", on="add_char")  # проверка на идентификатор
+            got_alpha.from_(got_alpha, cond="is_alpha", on="add_char")
             | got_digit.from_(got_alpha, cond="is_digit", on="add_char")
             | got_digit.from_(got_digit, got_dot, cond="is_digit", on="add_char")
             | got_alpha.from_(got_digit, cond="is_alpha", on="add_char")
 
             | got_dot.from_(got_digit, cond="is_dot", on="add_char")
 
+            | got_first_quot.from_(got_first_operator, got_second_operator, cond="is_quot", before="check_word", after="add_char")
+            | got_string.from_(got_first_quot, got_string, cond="is_not_quot", on="add_char")
+            | got_second_quot.from_(got_string, got_first_quot, before="add_char", after="check_word")
+
             | got_second_operator.from_(got_first_operator, cond = "is_operator", on = "add_char")
 
             | got_alpha.from_(got_separator,got_first_operator,got_second_operator, cond = "is_alpha", before="check_word", after = "add_char")
             | got_digit.from_(got_separator,got_first_operator,got_second_operator, cond = "is_digit", before="check_word", after = "add_char")
-            | got_separator.from_(got_alpha,got_digit,got_separator,got_first_operator,got_second_operator, cond = "is_separator", before="check_word", after = "add_char")
-            | got_first_operator.from_(got_alpha,got_digit,got_separator,cond = "is_operator", before="check_word", after = "add_char")
+            | got_separator.from_(got_alpha,got_digit,got_separator,got_first_operator,got_second_operator,got_second_quot, cond = "is_separator", before="check_word", after = "add_char")
+            | got_first_operator.from_(got_alpha,got_digit,got_separator,got_second_quot,cond = "is_operator", before="check_word", after = "add_char")
     )
 
     def __init__(self):
@@ -60,6 +69,10 @@ class Translator(StateMachine):
         return char in operators_dict
     def is_dot(self,char):
         return char=='.'
+    def is_quot(self, char):
+        return char == '\'' or char == '"'
+    def is_not_quot(self, char):
+        return char != '\'' and char != '"'
 
     def check_word(self):
         if self.current_word in key_words_dict:
@@ -72,6 +85,11 @@ class Translator(StateMachine):
             if self.current_word not in numbers_dict:
                 numbers_dict[self.current_word] = len(numbers_dict)
             self.tokens_list.append('N' + str(numbers_dict[self.current_word]))
+        elif self.current_word.find('"') != -1 or self.current_word.find("'") != -1:
+            if self.current_word not in string_dict:
+                string_dict[self.current_word] = len(string_dict)
+            self.tokens_list.append('S' + str(string_dict[self.current_word]))
+            print(self.current_word)
         elif self.current_word != '':
             if self.current_word not in ident_dict:
                 ident_dict[self.current_word] = len(ident_dict)
@@ -83,7 +101,7 @@ class Translator(StateMachine):
 
 
 output_lists = []
-with open('python_code.txt','r') as file:
+with open('test.txt','r') as file:
     for line in file:
         t = Translator()
         for symbol in line:
@@ -100,3 +118,5 @@ with open('ident.json', 'w') as file:
     json.dump(ident_dict, file, indent=4)
 with open('numbers.json', 'w') as file:
     json.dump(numbers_dict, file, indent=4)
+with open('strings.json', 'w') as file:
+    json.dump(string_dict, file, indent=4)
